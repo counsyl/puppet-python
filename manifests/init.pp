@@ -51,13 +51,6 @@ class python (
     require => Package['setuptools'],
   }
 
-  # Use pip to install virtualenv.
-  package { 'virtualenv':
-    ensure   => installed,
-    provider => 'pip',
-    require  => Exec['easy_install pip'],
-  }
-
   # OpenBSD needs some extra files to complete the experience.
   if $::operatingsystem == OpenBSD {
     include python::openbsd
