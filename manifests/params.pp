@@ -5,32 +5,46 @@
 class python::params {
   case $::osfamily {
     openbsd: {
-      include openbsd::pkg
-      if versioncmp($::kernelmajversion, '5.0') >= 0 {
+      include sys::openbsd::pkg
+      $version       = '2.7'
+      $ensure        = $sys::openbsd::pkg::python
+      $source        = $sys::openbsd::pkg::source
+      $package       = 'python'
+      $setuptools    = 'py-setuptools'
+      $site_packages = "/usr/local/lib/python${version}/site-packages"
+    }
+    solaris: {
+      include sys::solaris
+      $version       = '2.6'
+      $package       = 'runtime/python-26'
+      $provider      = 'pkg'
+      $setuptools    = 'library/python-2/setuptools-26'
+      $site_packages = "/usr/lib/python${version}/site-packages"
+    }
+    debian: {
+      if $::operatingsystem == 'Ubuntu' {
+        $lsb_compare = '10'
+      } else {
+        $lsb_compare = '6'
+      }
+
+      if versioncmp($::lsbmajdistrelease, $lsb_compare) > 0 {
         $version = '2.7'
       } else {
         $version = '2.6'
       }
-      $ensure     = $openbsd::pkg::python
-      $source     = $openbsd::pkg::source
-      $package    = 'python'
-      $setuptools = 'py-setuptools'
-    }
-    solaris: {
-      include sys::solaris
-      $package    = 'runtime/python-26'
-      $provider   = 'pkg'
-      $setuptools = 'library/python-2/setuptools-26'
-    }
-    debian: {
-      $package    = 'python'
-      $setuptools = 'python-setuptools'
-      $devel      = 'python-dev'
+
+      $package       = 'python'
+      $setuptools    = 'python-setuptools'
+      $devel         = 'python-dev'
+      $site_packages = "/usr/local/lib/python${version}/dist-packages"
     }
     redhat: {
-      $package    = 'python'
-      $setuptools = 'python-setuptools'
-      $devel      = 'python-devel'
+      $version       = '2.6'
+      $package       = 'python'
+      $setuptools    = 'python-setuptools'
+      $devel         = 'python-devel'
+      $site_packages = "/usr/lib/python${version}/site-packages"
     }
     default: {
       fail("Do not know how to install/configure Python on ${::osfamily}.\n")
