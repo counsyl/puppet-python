@@ -1,7 +1,8 @@
 python
 ======
 
-This installs the Python language runtime.
+This Puppet module installs the Python language runtime, and provides classes
+for common Python packages and tools.
 
 License
 -------
@@ -16,4 +17,4 @@ Justin Bronn <justin@counsyl.com>
 Support
 -------
 
-Please log tickets and issues at https://github.counsyl.com/justin/counsyl-python
+Please log tickets and issues at https://github.counsyl.com/dev/puppet-python
