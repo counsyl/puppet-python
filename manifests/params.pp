@@ -11,10 +11,13 @@ class python::params {
       $source        = $sys::openbsd::pkg::source
       $package       = 'python'
       $setuptools    = 'py-setuptools'
+      $pip           = 'py-pip'
+      $virtualenv    = 'py-virtualenv'
       $site_packages = "/usr/local/lib/python${version}/site-packages"
     }
     solaris: {
       include sys::solaris
+      $ensure        = 'installed'
       $version       = '2.6'
       $package       = 'runtime/python-26'
       $provider      = 'pkg'
@@ -34,26 +37,31 @@ class python::params {
         $version = '2.6'
       }
 
+      $ensure        = 'installed'
       $package       = 'python'
       $setuptools    = 'python-setuptools'
       $devel         = 'python-dev'
+      $pip           = 'python-pip'
+      $virtualenv    = 'python-virtualenv'
+
+      # Ubuntu is special -- `site-packages` is renamed to `dist-packages`;
+      # and apt's packages install in /usr/lib whereas pip packages go
+      # into /usr/local/lib.
+      $dist_packages = "/usr/lib/python${version}/dist-packages"
       $site_packages = "/usr/local/lib/python${version}/dist-packages"
     }
     redhat: {
+      $ensure        = 'installed'
       $version       = '2.6'
       $package       = 'python'
       $setuptools    = 'python-setuptools'
       $devel         = 'python-devel'
+      $pip           = 'python-pip'
+      $virtualenv    = 'python-virtualenv'
       $site_packages = "/usr/lib/python${version}/site-packages"
     }
     default: {
       fail("Do not know how to install/configure Python on ${::osfamily}.\n")
     }
-  }
-
-  # On OpenBSD, have to have `ensure` set so the correct
-  # Python version is installed.
-  if $::osfamily != OpenBSD {
-    $ensure = 'installed'
   }
 }
