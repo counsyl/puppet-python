@@ -21,20 +21,19 @@ Puppet::Type.type(:venv).provide(:virtualenv) do
 
     # The --distrubte and --setuptools flags are mutually exclusive,
     # don't set and leave default up to
-    if @resource[:distribute]
+    if @resource[:distribute] == :true
       options << '--distribute'
-    elsif @resource[:setuptools]
+    elsif @resource[:setuptools] == :true
       options << '--setuptools'
     end
 
-    if @resource[:unzip_setuptools]
+    if @resource[:unzip_setuptools] == :true
       options << '--unzip-setuptools'
     end
 
-    if @resource[:system_site_packages]
+    if @resource[:system_site_packages] == :true
       options << '--system-site-packages'
     end
-    puts @resource.to_s
     virtualenv *(options + [@resource[:path]])
   end
 

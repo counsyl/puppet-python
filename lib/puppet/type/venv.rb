@@ -47,7 +47,6 @@ Puppet::Type.newtype(:venv) do
   newparam(:system_site_packages) do
     desc "Give access to the global site-packages dir to the venv."
     newvalues(:true, :false)
-    defaultto :false
   end
 
   def refresh
