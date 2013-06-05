@@ -20,6 +20,14 @@ Puppet::Type.newtype(:venv) do
     end
   end
 
+  newparam(:owner) do
+    desc "The owner of the virtual environment."
+  end
+
+  newparam(:group) do
+    desc "The group of the virtual environment."
+  end
+
   newparam(:python, :required_features => :virtualenv) do
     desc "The Python interpreter to use."
   end
@@ -47,6 +55,15 @@ Puppet::Type.newtype(:venv) do
   newparam(:system_site_packages) do
     desc "Give access to the global site-packages dir to the venv."
     newvalues(:true, :false)
+  end
+
+  # Autorequire the owner and group of the virtualenv.
+  autorequire(:group) do
+    self[:group] if self[:group]
+  end
+
+  autorequire(:user) do
+    self[:owner] if self[:owner]
   end
 
   def refresh

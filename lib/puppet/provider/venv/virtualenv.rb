@@ -31,10 +31,22 @@ Puppet::Type.type(:venv).provide(:virtualenv) do
       options << '--unzip-setuptools'
     end
 
+    # If set, we want to include the system's site packages in environment.
     if @resource[:system_site_packages] == :true
       options << '--system-site-packages'
     end
+
+    # Calling `virtualenv` with the proper options.
     virtualenv *(options + [@resource[:path]])
+
+    # If `owner` or `group` parameters passed in, change the permissions
+    # on the virtualenv accordingly.
+    owner = @resource.value(:owner) || nil
+    group = @resource.value(:group) || nil
+    if owner or group
+      self.debug "Updating virtualenv permissions"
+      FileUtils.chown_R(owner, group, @resource.value(:path))
+    end
   end
 
   def destroy
