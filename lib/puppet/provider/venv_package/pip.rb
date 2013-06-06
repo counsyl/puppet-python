@@ -47,10 +47,13 @@ Puppet::Type.type(:venv_package).provide :pip,
   # cache of PyPI's package list so this operation will always have to
   # ask the web service.
   def latest
-    client = XMLRPC::Client.new2("http://pypi.python.org/pypi")
+    pypkg = @resource[:name].split('@')[0]
+    pypi_url = @resource[:pypi]
+    client = XMLRPC::Client.new2(pypi_url)
     client.http_header_extra = {"Content-Type" => "text/xml"}
     client.timeout = 10
-    result = client.call("package_releases", @resource[:name].split('@')[0])
+    self.debug "Querying latest for '#{pypkg}' from '#{pypi_url}'"
+    result = client.call("package_releases", pypkg)
     result.first
   rescue Timeout::Error => detail
     raise Puppet::Error, "Timeout while contacting pypi.python.org: #{detail}";

@@ -1,3 +1,5 @@
+require 'uri'
+
 Puppet::Type.newtype(:venv_package) do
   desc "Installs Python packages within a virtual environment."
 
@@ -159,6 +161,17 @@ Puppet::Type.newtype(:venv_package) do
         (or on a network file system) or a URL that pip understands."
     validate do |value|
       provider.validate_source(value)
+    end
+  end
+
+  newparam(:pypi) do
+    desc "The URL to use for the Python Packaging Index (PyPI).
+       Defaults to https://pypi.python.org/pypi"
+    defaultto "https://pypi.python.org/pypi"
+    validate do |value|
+      unless value =~ URI::regexp
+        fail Puppet::Error, "Invalid PyPI URL provided."
+      end
     end
   end
 
