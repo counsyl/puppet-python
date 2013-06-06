@@ -168,7 +168,7 @@ Puppet::Type.newtype(:venv_package) do
     @parameters[:name].value.split('@')[1]
   end
 
-  ## Class Methods
+  ## Instance Methods
 
   def refresh
     # Makes it so this type is "refresh aware" and won't break chain of

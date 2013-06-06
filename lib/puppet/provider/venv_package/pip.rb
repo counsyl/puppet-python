@@ -1,3 +1,4 @@
+require 'etc'
 require 'xmlrpc/client'
 require 'puppet/provider/package'
 
@@ -101,8 +102,30 @@ Puppet::Type.type(:venv_package).provide :pip,
     end
 
     if pathname = which(File.join(venv, 'bin', 'pip'))
-      self.class.commands :pip => pathname
-      pip *args
+      self.class.commands :pip => pathname, :su => 'su'
+
+      # Does the virtualenv have the `owner` property set?  If so,
+      # we'll want to run pip in the same context as them by wrapping
+      # the virtualenv pip in a `su` call.
+      venv_resource = @resource.catalog.resource('Venv', venv)
+      venv_owner = venv_resource.parameters[:owner]
+
+      if venv_owner
+        # Depending on when this is invoked, the parent's property
+        # may have already been converted to an integer -- thus,
+        # convert it to a username for use with `su`.
+        begin
+          uid = Integer(venv_owner.value)
+          owner = Etc.getpwuid(uid).name
+        rescue TypeError, ArgumentError
+          owner = venv_owner.value
+        end
+        # Call pip as the virtualenv owner.
+        su *['-l', owner, '-c', ([pathname] + args).join(' ')]
+      else
+        # Call pip normally.
+        pip *args
+      end
     else
       raise e, 'Could not locate the pip command.'
     end
