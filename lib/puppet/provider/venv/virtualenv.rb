@@ -35,18 +35,18 @@ Puppet::Type.type(:venv).provide(:virtualenv) do
 
     # The --distrubte and --setuptools flags are mutually exclusive,
     # don't set and leave default up to
-    if @resource[:distribute] == :true
+    if @resource[:distribute]
       options << '--distribute'
-    elsif @resource[:setuptools] == :true
+    elsif @resource[:setuptools]
       options << '--setuptools'
     end
 
-    if @resource[:unzip_setuptools] == :true
+    if @resource[:unzip_setuptools]
       options << '--unzip-setuptools'
     end
 
     # If set, we want to include the system's site packages in environment.
-    if @resource[:system_site_packages] == :true
+    if @resource[:system_site_packages]
       options << '--system-site-packages'
     end
 
@@ -65,7 +65,12 @@ Puppet::Type.type(:venv).provide(:virtualenv) do
     FileUtils.rm_rf(@resource[:path])
   end
 
+  # Updates permissions, recursively, on the virtualenv.
   def update_permissions(user, group)
+    unless Puppet.features.root?
+      raise Puppet::Error, "Cannot change virtualenv permissions unless root"
+    end
+
     begin
       self.debug "Updating permissions of virtualenv to #{user}:#{group}"
       FileUtils.chown_R(user, group, @resource[:path])
@@ -154,7 +159,7 @@ Puppet::Type.type(:venv).provide(:virtualenv) do
       nil
     rescue Errno::EACCES => error
       warning "Could not stat; permission denied"
-       nil
+      nil
     end
   end
 end

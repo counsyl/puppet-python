@@ -88,29 +88,28 @@ Puppet::Type.newtype(:venv) do
     desc "The Python interpreter to use."
   end
 
-  newparam(:distribute, :required_features => :virtualenv) do
+  newparam(:distribute, :boolean => true,
+           :required_features => :virtualenv) do
     desc "Use distribute instead of setuptools."
-    newvalues(:true, :false)
   end
 
-  newparam(:setuptools, :required_features => :virtualenv) do
+  newparam(:setuptools, :boolean => true,
+           :required_features => :virtualenv) do
     desc "Use setuptools instead of distribute."
-    newvalues(:true, :false)
   end
 
-  newparam(:unzip_setuptools, :required_features => :virtualenv) do
+  newparam(:unzip_setuptools, :boolean => true,
+           :required_features => :virtualenv) do
     desc "Unzip Setuptools or Distribute when installing it."
-    newvalues(:true, :false)
   end
 
-  newparam(:symlinks, :required_features => :pyvenv) do
+  newparam(:symlinks, :boolean => true,
+           :required_features => :pyvenv) do
     desc "Try to use symlinks rather than copies when not platform default."
-    newvalues(:true, :false)
   end
 
-  newparam(:system_site_packages) do
+  newparam(:system_site_packages, :boolean => true) do
     desc "Give access to the global site-packages dir to the venv."
-    newvalues(:true, :false)
   end
 
   ## Autorequires
