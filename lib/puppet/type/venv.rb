@@ -114,6 +114,11 @@ Puppet::Type.newtype(:venv) do
 
   ## Autorequires
 
+  # Need to have access to virtualenv.
+  autorequire(:class) do
+    'python::virtualenv'
+  end
+
   # Automatically require the group and owner if they are set.
   autorequire(:group) do
     self[:group] if self[:group]
