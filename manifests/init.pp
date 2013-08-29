@@ -12,33 +12,17 @@
 # [*package*]
 #  The name of the Python package to install, uses platform default.
 #
-# [*setuptools_ensure*]
-#  The ensure value for the setuptools package, 'installed' by default.
-#
-# [*setuptools_package*]
-#  The name of the setuptools package to install, uses platform default.
-#
-# [*pip_ensure*]
-#  The ensure value for the pip package, 'installed' by default.
-#
-# [*pip_package*]
-#  The name of the pip package to install, uses platform default.
-#
 # [*provider*]
-#  The provider for the python/setuptools/pip packages, uses platform default.
+#  The provider for the Python package, uses platform default.
 #
 # [*source*]
-#  The source for the python/setuptools/pip packages, uses platform default.
+#  The source for the Python package, uses platform default.
 #
 class python (
-  $ensure             = $python::params::ensure,
-  $package            = $python::params::package,
-  $setuptools_ensure  = 'installed',
-  $setuptools_package = $python::params::setuptools,
-  $pip_ensure         = 'installed',
-  $pip_package        = $python::params::pip,
-  $provider           = $python::params::provider,
-  $source             = $python::params::source,
+  $ensure  = $python::params::ensure,
+  $package = $python::params::package,
+  $provide = $python::params::provider,
+  $source  = $python::params::source,
 ) inherits python::params {
 
   # Package for Python.
@@ -49,46 +33,52 @@ class python (
     source   => $source,
   }
 
-  # Package for setuptools.
-  package { $setuptools_package:
-    ensure   => $setuptools_ensure,
-    alias    => 'setuptools',
-    provider => $provider,
-    source   => $source,
-    require  => Package[$package],
-  }
+  # Include setuptools and pip for packaging.  Ensure relationships are
+  # setup between the Python package and the setuptools/pip classes.
+  include python::setuptools
+  include python::pip
+  Package['python'] -> Class['python::setuptools'] -> Class['python::pip']
 
-  # Install the pip package if it exists, bootstrap with `easy_install`
-  # otherwise.
-  if $pip_package {
-    package { $pip_package:
-      ensure   => $pip_ensure,
-      alias    => 'pip',
-      provider => $provider,
-      source   => $source,
-      require  => Package[$setuptools_package],
-    }
-
-    # RedHat needs EPEL for pip package.
-    if $::operatingsystem == 'RedHat' {
-      include sys::redhat::epel
-      Class['sys::redhat::epel'] -> Package[$pip_package]
-    }
-  } elsif $pip_ensure == 'installed' {
-    exec { 'easy_install pip':
-      path    => ['/usr/local/bin', '/usr/bin', '/bin'],
-      unless  => 'which pip',
-      require => Package[$setuptools_package],
-    }
-  }
-
-  # OpenBSD needs some extra files to complete the experience.
+  # OpenBSD needs some extra links to complete the experience.
   if $::operatingsystem == 'OpenBSD' {
-    include python::openbsd
+    case $ensure {
+      'installed', 'present': {
+        file { '/usr/local/bin/python':
+          ensure  => link,
+          target  => "/usr/local/bin/python${version}",
+          owner   => 'root',
+          group   => 'wheel',
+          require => Package['python'],
+        }
+
+        file { '/usr/local/bin/python-config':
+          ensure  => link,
+          target  => "/usr/local/bin/python${version}-config",
+          owner   => 'root',
+          group   => 'wheel',
+          require => Package['python'],
+        }
+
+        file { '/usr/local/bin/pydoc':
+          ensure  => link,
+          target  => "/usr/local/bin/pydoc${version}",
+          owner   => 'root',
+          group   => 'wheel',
+          require => Package['python'],
+        }
+      }
+      'uninstalled', 'absent': {
+        file { ['/usr/local/bin/python', '/usr/local/bin/python-config',
+                '/usr/local/bin/pydoc']:
+          ensure => absent,
+        }
+      }
+    }
   }
 
-  # Ensure this class comes before any package resources with a `pip` provider
-  # or any `venv` resources.
+  # Ensure this class comes before any package resources with a `pip` or `pipx`
+  # provider, as well as any `venv` resources.
   Class['python'] -> Package<| provider == pip |>
+  Class['python'] -> Package<| provider == pipx |>
   Class['python'] -> Venv<| |>
 }
