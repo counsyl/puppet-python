@@ -74,6 +74,14 @@ Puppet::Type.type(:package).provide :pipx,
     args = %w{install -q}
     if @resource[:source]
       if String === @resource[:ensure]
+        # If there's a SCM revision specified, ensure a `--ignore-installed` is
+        # is specified to ensure package is actually installed.
+        self.class.instances.each do |pip_package|
+          if pip_package.name == @resource[:name]
+            args << "--ignore-installed"
+            break
+          end
+        end
         args << "#{@resource[:source]}@#{@resource[:ensure]}#egg=#{
           @resource[:name]}"
       else
