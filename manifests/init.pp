@@ -42,7 +42,13 @@ class python (
   # OpenBSD needs some extra links to complete the experience.
   if $::operatingsystem == 'OpenBSD' {
     case $ensure {
-      'installed', 'present': {
+      'uninstalled', 'absent': {
+        file { ['/usr/local/bin/python', '/usr/local/bin/python-config',
+                '/usr/local/bin/pydoc']:
+          ensure => absent,
+        }
+      }
+      default: {
         file { '/usr/local/bin/python':
           ensure  => link,
           target  => "/usr/local/bin/python${version}",
@@ -65,12 +71,6 @@ class python (
           owner   => 'root',
           group   => 'wheel',
           require => Package['python'],
-        }
-      }
-      'uninstalled', 'absent': {
-        file { ['/usr/local/bin/python', '/usr/local/bin/python-config',
-                '/usr/local/bin/pydoc']:
-          ensure => absent,
         }
       }
     }
