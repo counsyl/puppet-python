@@ -18,7 +18,7 @@
 #  The source for the setuptools package, uses platform default.
 #
 class python::setuptools(
-  $ensure = 'installed',
+  $ensure   = 'installed',
   $package  = $python::params::setuptools,
   $provider = $python::params::provider,
   $source   = $python::params::source,
