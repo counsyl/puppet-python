@@ -19,7 +19,6 @@ class python::openbsd(
         target  => $interpreter,
         owner   => 'root',
         group   => 'wheel',
-        require => Package[$package],
       }
 
       file { '/usr/local/bin/python-config':
@@ -27,7 +26,6 @@ class python::openbsd(
         target  => "/usr/local/bin/python${version}-config",
         owner   => 'root',
         group   => 'wheel',
-        require => Package[$package],
       }
 
       file { '/usr/local/bin/pydoc':
@@ -35,7 +33,6 @@ class python::openbsd(
         target  => "/usr/local/bin/pydoc${version}",
         owner   => 'root',
         group   => 'wheel',
-        require => Package[$package],
       }
 
       file { '/usr/local/bin/easy_install':
@@ -43,7 +40,6 @@ class python::openbsd(
         target  => "/usr/local/bin/easy_install-${version}",
         owner   => 'root',
         group   => 'wheel',
-        require => Package[$setuptools],
       }
 
       file { '/usr/local/bin/pip':
@@ -51,7 +47,6 @@ class python::openbsd(
         target  => "/usr/local/bin/pip-${version}",
         owner   => 'root',
         group   => 'wheel',
-        require => Package[$pip],
       }
     }
   }
