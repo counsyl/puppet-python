@@ -17,10 +17,10 @@
 #  The source for the pip package, uses platform default.
 #
 class python::pip(
-  $ensure       = 'installed',
-  $package      = $python::params::pip,
-  $provider     = $python::params::provider,
-  $source       = $python::params::source,
+  $ensure   = 'installed',
+  $package  = $python::params::pip,
+  $provider = $python::params::provider,
+  $source   = $python::params::source,
 ) inherits python::params {
   if $package {
     if $::osfamily == 'RedHat' {
@@ -33,7 +33,6 @@ class python::pip(
       ensure   => $ensure,
       provider => $provider,
       source   => $source,
-      require  => Package[$setuptools],
     }
   } elsif $ensure in ['installed', 'present'] {
     # Use setuptools to bootstrap pip if we aren't using a package.
