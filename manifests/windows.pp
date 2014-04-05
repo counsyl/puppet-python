@@ -39,7 +39,7 @@ class python::windows(
   $version   = $python::params::full_version,
   $win_path  = true,
 ) inherits python::params {
-  include windows
+  include ::windows
 
   # The basename of the MSI and the package's name depend on the architecture.
   if $arch == 'x64' {
@@ -63,12 +63,12 @@ class python::windows(
 
   # If a non-UNC URL is used, download the MSI with sys::fetch.
   if $source_uri !~ /^[\\]+/ {
-    $python_source = "${windows::installers}\\${basename}"
+    $python_source = "${::windows::installers}\\${basename}"
 
     sys::fetch { 'download-windows-python':
       destination => $python_source,
       source      => $source_uri,
-      require     => File[$windows::installers],
+      require     => File[$::windows::installers],
     }
   } else {
     $python_source = $source_uri
@@ -85,7 +85,7 @@ class python::windows(
     $path = $targetdir
   } else {
     $path = inline_template(
-      "<%= \"#{scope['windows::system_root']}Python#{@version.split('.').join('')[0..1]}\" %>"
+      "<%= \"#{scope['::windows::system_root']}Python#{@version.split('.').join('')[0..1]}\" %>"
     )
   }
 
