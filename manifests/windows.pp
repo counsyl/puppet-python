@@ -33,7 +33,7 @@
 class python::windows(
   $allusers  = true,
   $arch      = $::architecture,
-  $base_url  = 'http://www.python.org/ftp/python/${python::params::version}/',
+  $base_url  = undef,
   $source    = undef,
   $targetdir = undef,
   $version   = $python::params::full_version,
