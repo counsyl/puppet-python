@@ -57,34 +57,19 @@ class python (
 
   # Include setuptools and pip for packaging.  Ensure relationships are
   # setup between the Python package and the setuptools/pip classes.
-  case $ensure {
-    'uninstalled', 'absent': {
-      class { 'python::pip':
-        ensure => absent,
-      } ->
-      class { 'python::setuptools':
-        ensure => absent,
-      } ->
-      Package[$python_package]
-    }
-    default: {
-      include python::setuptools
-      include python::pip
-      Package[$python_package] -> Class['python::setuptools'] -> Class['python::pip']
+  include python::setuptools
+  include python::pip
+  Package[$python_package] -> Class['python::setuptools'] -> Class['python::pip']
 
-      # Ensure this class comes before any package resources with a `pip` or `pipx`
-      # provider, as well as any `venv` resources.
-      Class['python'] -> Package<| provider == pip |>
-      Class['python'] -> Package<| provider == pipx |>
-      Class['python'] -> Venv<| |>
-    }
-  }
+  # Ensure this class comes before any package resources with a `pip` or `pipx`
+  # provider, as well as any `venv` resources.
+  Class['python'] -> Package<| provider == pip |>
+  Class['python'] -> Package<| provider == pipx |>
+  Class['python'] -> Venv<| |>
 
   # OpenBSD needs some extra links to complete the experience.
   if $::osfamily == 'OpenBSD' {
-    class { 'python::openbsd':
-      ensure  => $ensure,
-      require => Class['python::pip'],
-    }
+    include python::openbsd
+    Class['python::pip'] -> Class['python::openbsd']
   }
 }
