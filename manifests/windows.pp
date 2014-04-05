@@ -63,15 +63,15 @@ class python::windows(
 
   # If a non-UNC URL is used, download the MSI with sys::fetch.
   if $source_uri !~ /^[\\]+/ {
-    $python_source = "${::windows::installers}\\${basename}"
+    $source = "${::windows::installers}\\${basename}"
 
     sys::fetch { 'download-windows-python':
-      destination => $python_source,
+      destination => $source,
       source      => $source_uri,
       require     => File[$::windows::installers],
     }
   } else {
-    $python_source = $source_uri
+    $source = $source_uri
   }
 
   if $allusers {
