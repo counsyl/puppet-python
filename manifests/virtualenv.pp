@@ -21,10 +21,19 @@ class python::virtualenv(
   $package  = $python::params::virtualenv,
   $provider = $python::params::provider,
 ) inherits python::params {
-  package { $package:
-    ensure   => $ensure,
-    alias    => 'virtualenv',
-    provider => $provider,
-    require  => Class['python'],
+  include python
+
+  if $package {
+    package { $package:
+      ensure   => $ensure,
+      provider => $provider,
+      require  => Class['python'],
+    }
+  } elsif $ensure in ['installed', 'present'] {
+    package { 'virtualenv':
+      ensure   => $ensure,
+      provider => 'pip',
+      require  => Class['python'],
+    }
   }
 }
