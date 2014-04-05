@@ -40,7 +40,7 @@ class python (
     $site_packages = $python::windows::site_packages
 
     # Ensure that python::windows comes before the package.
-    Class['python::windows'] -> Package[$package]
+    Class['python::windows'] -> Package[$python_package]
   } else {
     $package_source = $source
     $python_package = $package
