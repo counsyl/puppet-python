@@ -1,6 +1,34 @@
 # == Class: python::windows
 #
+# Performs the setup necessary (e.g., downloading the installation MSI) to
+# install Python.  Also sets variables (like $site_packages, $interpreter)
+# that have to be specially calculated on Windows.
 #
+# === Parameters
+#
+# [*arch*]
+#  The architecture of Python to install, defaults to the architecture of
+#  the system (e.g., 'x64' on 64-bit system).
+#
+# [*allusers*]
+#  Whether to install Python for all users, defaults to true.
+#
+# [*base_url*]
+#  The base url to use when downloading Python, undefined by default.
+#
+# [*source*]
+#  The HTTP or UNC source to the Python package, undefined by default.
+#
+# [*targetdir*]
+#  The target installation directory to use for the Python package,
+#  undefined by default.
+#
+# [*version*]
+#  The version of Python to install, defaults to '2.7.6'.
+#
+# [*win_path*]
+#  Whether or not to add Python directory to the Windows system %Path%,
+#  defaults to true.
 #
 class python::windows(
   $allusers  = true,
@@ -13,7 +41,7 @@ class python::windows(
 ) inherits python::params {
   include windows
 
-  # The basename of the MSI and the package's name depend on architecture.
+  # The basename of the MSI and the package's name depend on the architecture.
   if $arch == 'x64' {
     $basename = "python-${version}.amd64.msi"
     $package = "Python ${version} (64-bit)"
@@ -63,6 +91,9 @@ class python::windows(
 
   # The install options for the MSI.
   $install_options => [{'TARGETDIR' => $path, 'ALLUSERS'  => $allusers_val}]
+
+  # Location of Python interpreter.
+  $interpreter = "${path}\\python.exe"
 
   # Python scripts path.
   $scripts = "${path}\\Scripts"

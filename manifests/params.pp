@@ -13,7 +13,6 @@ class python::params {
       $setuptools    = 'py-setuptools'
       $pip           = 'py-pip'
       $virtualenv    = 'py-virtualenv'
-      $easy_install  = "/usr/local/bin/easy_install-${version}"
       $interpreter   = "/usr/local/bin/python${version}"
       $site_packages = "/usr/local/lib/python${version}/site-packages"
     }
@@ -69,11 +68,21 @@ class python::params {
       $ensure        = 'installed'
       $version       = '2.7'
       $full_version  = '2.7.6'
-      # Other parameters, like $package, $interpreter, and $site_packages, are
-      # set by `python::windows`.
+      # Other parameters, like $package, $interpreter, and $site_packages
+      # are set by `python::windows`.
     }
     default: {
       fail("Do not know how to install/configure Python on ${::osfamily}.\n")
     }
+  }
+
+  # Parameters for when using ez_setup.py.
+  $ez_version = '3.4.1'
+  $ez_base_url = 'https://pypi.python.org/packages/source/s/setuptools/'
+  if $::osfamily != 'windows' {
+    include sys
+    $ez_setup_owner = 'root'
+    $ez_setup_group = $sys::root_group
+    $ez_setup_mode = '0644'
   }
 }

@@ -25,18 +25,18 @@ class python (
   $provider = $python::params::provider,
   $source   = $python::params::source,
 ) inherits python::params {
-
   if $::osfamily == 'windows' {
     # Include python::windows, this downloads the MSI and calculates paths.
     include python::windows
 
-    # Get package name, install options and source for Windows.
+    # Get install options, package name and source for Windows.
     $install_options = $python::windows::install_options
     $package_source = $python::windows::source
     $python_package = $python::windows::package
     
-    # Set interpreter and site_packages variable.
+    # Set up variables that couldn't be set in python::params.
     $interpreter = $python::windows::interpreter
+    $scripts = $python::windows::scripts
     $site_packages = $python::windows::site_packages
 
     # Ensure that python::windows comes before the package.
@@ -44,6 +44,7 @@ class python (
   } else {
     $package_source = $source
     $python_package = $package
+    $scripts = '/usr/local/bin'
   }
 
   # The resource for the Python package.
@@ -83,7 +84,7 @@ class python (
   if $::osfamily == 'OpenBSD' {
     class { 'python::openbsd':
       ensure  => $ensure,
-      require => Package[$python_package],
+      require => Class['python::pip'],
     }
   }
 }

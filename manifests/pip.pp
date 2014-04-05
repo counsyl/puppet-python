@@ -17,14 +17,14 @@
 #  The source for the pip package, uses platform default.
 #
 class python::pip(
-  $ensure   = 'installed',
-  $package  = $python::params::pip,
-  $provider = $python::params::provider,
-  $source   = $python::params::source,
+  $ensure       = 'installed',
+  $package      = $python::params::pip,
+  $provider     = $python::params::provider,
+  $source       = $python::params::source,
 ) inherits python::params {
   if $package {
-    # RedHat needs EPEL for pip package.
-    if $::operatingsystem == 'RedHat' {
+    if $::osfamily == 'RedHat' {
+      # RedHat needs EPEL for pip package.
       include sys::redhat::epel
       Class['sys::redhat::epel'] -> Package[$package]
     }
@@ -37,10 +37,15 @@ class python::pip(
     }
   } elsif $ensure in ['installed', 'present'] {
     # Use setuptools to bootstrap pip if we aren't using a package.
-    exec { "easy_install pip":
-      path    => ['/usr/local/bin', '/usr/bin', '/bin'],
-      unless  => 'which pip',
-      require => Package[$package],
+    if $::osfamily == 'windows' {
+      $pip_script = "${python::scripts}\\pip.exe"
+    } else {
+      $pip_script = "${python::scripts}/pip"
+    }
+
+    exec { 'pip-install':
+      command => "${python::setuptools::easy_install} pip",
+      creates => $pip_script,
     }
   }
 }

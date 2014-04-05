@@ -18,40 +18,50 @@
 #  The source for the setuptools package, uses platform default.
 #
 class python::setuptools(
-  $ensure     = 'installed',
-  $ez_setup   = false,
-  $ez_version = '3.4.1',
-  $package    = $python::params::setuptools,
-  $provider   = $python::params::provider,
-  $source     = $python::params::source,
+  $ensure      = 'installed',
+  $ez_base_url = $python::params::ez_base_url,
+  $ez_version  = $python::params::ez_version,
+  $package     = $python::params::setuptools,
+  $provider    = $python::params::provider,
+  $source      = $python::params::source,
 ) inherits python::params {
-
-  if ! $package or $ez_setup {
-  } else {
+  if $package {
     package { $package:
       ensure   => $ensure,
-      alias    => 'setuptools',
       provider => $provider,
       source   => $source,
     }
 
-    if $::operatingsystem == 'OpenBSD' {
-      case $ensure {
-        'installed', 'present': {
-          file { '/usr/local/bin/easy_install':
-            ensure  => link,
-            target  => "/usr/local/bin/easy_install-${version}",
-            owner   => 'root',
-            group   => 'wheel',
-            require => Package['setuptools'],
-          }
-        }
-        'uninstalled', 'absent': {
-          file { '/usr/local/bin/easy_install':
-            ensure => absent,
-          }
-        }
-      }
+    if $::osfamily == 'OpenBSD' {
+      $easy_install = "/usr/local/bin/easy_install-${version}"
+    } else {
+      $easy_install = '/usr/bin/easy_install'
+    }
+  } elsif $ensure in ['installed', 'present'] {
+    # If there's no package, then use ez_setup.py.
+    if $::osfamily == 'windows' {
+      $ez_setup_dir = inline_template(
+        "<%= File.dirname(scope['python::interpreter']) %>"
+      )
+      $ez_setup = "${ez_setup_dir}\\ez_setup.py"
+      $easy_install = "${python::scripts}\\easy_install.exe"
+    } else {
+      $ez_setup = '/usr/local/bin/ez_setup.py'
+      $easy_install = '/usr/local/bin/easy_install'
+    }
+
+    file { $ez_setup:
+      ensure  => file,
+      owner   => $ez_setup_owner,
+      group   => $ez_setup_group,
+      mode    => $ez_setup_mode,
+      content => template('python/ez_setup.py.erb'),
+    }
+
+    exec { 'setuptools-install':
+      command => "${python::interpreter} ${ez_setup}",
+      creates => $easy_install,
+      require => File[$ez_setup],
     }
   }
 }
