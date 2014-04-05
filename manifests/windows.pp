@@ -106,12 +106,10 @@ class python::windows(
   if $win_path {
     windows::path { 'python-path':
       directory => $path,
-      require   => Package[$package],
     }
 
     windows::path { 'python-scripts':
       directory => $scripts,
-      require   => Package[$package],
     }
   }
 }
