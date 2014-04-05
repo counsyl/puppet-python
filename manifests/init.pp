@@ -31,7 +31,7 @@ class python (
 
     # Get install options, package name and source for Windows.
     $install_options = $python::windows::install_options
-    $package_source = $python::windows::source
+    $package_source = $python::windows::package_source
     $python_package = $python::windows::package
     
     # Set up variables that couldn't be set in python::params.
