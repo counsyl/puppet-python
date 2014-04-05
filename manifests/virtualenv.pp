@@ -21,8 +21,6 @@ class python::virtualenv(
   $package  = $python::params::virtualenv,
   $provider = $python::params::provider,
 ) inherits python::params {
-  include python
-
   if $package {
     package { $package:
       ensure   => $ensure,
