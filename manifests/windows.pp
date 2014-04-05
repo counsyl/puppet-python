@@ -90,7 +90,7 @@ class python::windows(
   }
 
   # The install options for the MSI.
-  $install_options => [{'TARGETDIR' => $path, 'ALLUSERS'  => $allusers_val}]
+  $install_options = [{'TARGETDIR' => $path, 'ALLUSERS' => $allusers_val}]
 
   # Location of Python interpreter.
   $interpreter = "${path}\\python.exe"
