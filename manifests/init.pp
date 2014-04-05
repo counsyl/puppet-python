@@ -16,69 +16,74 @@
 #  The provider for the Python package, uses platform default.
 #
 # [*source*]
-#  The source for the Python package, uses platform default.
+#  The source used for the Python package -- only used on OpenBSD platforms
+#  at the moment.  For windows, customize using `python::windows::source`.
 #
 class python (
-  $ensure  = $python::params::ensure,
-  $package = $python::params::package,
-  $provide = $python::params::provider,
-  $source  = $python::params::source,
+  $ensure   = $python::params::ensure,
+  $package  = $python::params::package,
+  $provider = $python::params::provider,
+  $source   = $python::params::source,
 ) inherits python::params {
 
-  # Package for Python.
-  package { $package:
-    ensure   => $ensure,
-    alias    => 'python',
-    provider => $provider,
-    source   => $source,
+  if $::osfamily == 'windows' {
+    # Include python::windows, this downloads the MSI and calculates paths.
+    include python::windows
+
+    # Get package name, install options and source for Windows.
+    $install_options = $python::windows::install_options
+    $package_source = $python::windows::source
+    $python_package = $python::windows::package
+    
+    # Set interpreter and site_packages variable.
+    $interpreter = $python::windows::interpreter
+    $site_packages = $python::windows::site_packages
+
+    # Ensure that python::windows comes before the package.
+    Class['python::windows'] -> Package[$package]
+  } else {
+    $package_source = $source
+    $python_package = $package
+  }
+
+  # The resource for the Python package.
+  package { $python_package:
+    ensure          => $ensure,
+    provider        => $provider,
+    source          => $package_source,
+    install_options => $install_options,
   }
 
   # Include setuptools and pip for packaging.  Ensure relationships are
   # setup between the Python package and the setuptools/pip classes.
-  include python::setuptools
-  include python::pip
-  Package['python'] -> Class['python::setuptools'] -> Class['python::pip']
+  case $ensure {
+    'uninstalled', 'absent': {
+      class { 'python::pip':
+        ensure => absent,
+      } ->
+      class { 'python::setuptools':
+        ensure => absent,
+      } ->
+      Package[$python_package]
+    }
+    default: {
+      include python::setuptools
+      include python::pip
+      Package[$python_package] -> Class['python::setuptools'] -> Class['python::pip']
 
-  # OpenBSD needs some extra links to complete the experience.
-  if $::operatingsystem == 'OpenBSD' {
-    case $ensure {
-      'uninstalled', 'absent': {
-        file { ['/usr/local/bin/python', '/usr/local/bin/python-config',
-                '/usr/local/bin/pydoc']:
-          ensure => absent,
-        }
-      }
-      default: {
-        file { '/usr/local/bin/python':
-          ensure  => link,
-          target  => "/usr/local/bin/python${version}",
-          owner   => 'root',
-          group   => 'wheel',
-          require => Package['python'],
-        }
-
-        file { '/usr/local/bin/python-config':
-          ensure  => link,
-          target  => "/usr/local/bin/python${version}-config",
-          owner   => 'root',
-          group   => 'wheel',
-          require => Package['python'],
-        }
-
-        file { '/usr/local/bin/pydoc':
-          ensure  => link,
-          target  => "/usr/local/bin/pydoc${version}",
-          owner   => 'root',
-          group   => 'wheel',
-          require => Package['python'],
-        }
-      }
+      # Ensure this class comes before any package resources with a `pip` or `pipx`
+      # provider, as well as any `venv` resources.
+      Class['python'] -> Package<| provider == pip |>
+      Class['python'] -> Package<| provider == pipx |>
+      Class['python'] -> Venv<| |>
     }
   }
 
-  # Ensure this class comes before any package resources with a `pip` or `pipx`
-  # provider, as well as any `venv` resources.
-  Class['python'] -> Package<| provider == pip |>
-  Class['python'] -> Package<| provider == pipx |>
-  Class['python'] -> Venv<| |>
+  # OpenBSD needs some extra links to complete the experience.
+  if $::osfamily == 'OpenBSD' {
+    class { 'python::openbsd':
+      ensure  => $ensure,
+      require => Package[$python_package],
+    }
+  }
 }

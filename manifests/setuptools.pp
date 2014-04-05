@@ -18,33 +18,38 @@
 #  The source for the setuptools package, uses platform default.
 #
 class python::setuptools(
-  $ensure   = 'installed',
-  $package  = $python::params::setuptools,
-  $provider = $python::params::provider,
-  $source   = $python::params::source,
+  $ensure     = 'installed',
+  $ez_setup   = false,
+  $ez_version = '3.4.1',
+  $package    = $python::params::setuptools,
+  $provider   = $python::params::provider,
+  $source     = $python::params::source,
 ) inherits python::params {
 
-  package { $package:
-    ensure   => $ensure,
-    alias    => 'setuptools',
-    provider => $provider,
-    source   => $source,
-  }
+  if ! $package or $ez_setup {
+  } else {
+    package { $package:
+      ensure   => $ensure,
+      alias    => 'setuptools',
+      provider => $provider,
+      source   => $source,
+    }
 
-  if $::operatingsystem == 'OpenBSD' {
-    case $ensure {
-      'installed', 'present': {
-        file { '/usr/local/bin/easy_install':
-          ensure  => link,
-          target  => "/usr/local/bin/easy_install-${version}",
-          owner   => 'root',
-          group   => 'wheel',
-          require => Package['setuptools'],
+    if $::operatingsystem == 'OpenBSD' {
+      case $ensure {
+        'installed', 'present': {
+          file { '/usr/local/bin/easy_install':
+            ensure  => link,
+            target  => "/usr/local/bin/easy_install-${version}",
+            owner   => 'root',
+            group   => 'wheel',
+            require => Package['setuptools'],
+          }
         }
-      }
-      'uninstalled', 'absent': {
-        file { '/usr/local/bin/easy_install':
-          ensure => absent,
+        'uninstalled', 'absent': {
+          file { '/usr/local/bin/easy_install':
+            ensure => absent,
+          }
         }
       }
     }

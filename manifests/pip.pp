@@ -23,45 +23,24 @@ class python::pip(
   $source   = $python::params::source,
 ) inherits python::params {
   if $package {
-    package { $package:
-      ensure   => $ensure,
-      alias    => 'pip',
-      provider => $provider,
-      source   => $source,
-      require  => Package['setuptools'],
-    }
-
     # RedHat needs EPEL for pip package.
     if $::operatingsystem == 'RedHat' {
       include sys::redhat::epel
-      Class['sys::redhat::epel'] -> Package['pip']
+      Class['sys::redhat::epel'] -> Package[$package]
     }
 
-    # OpenBSD link.
-    if $::operatingsystem == 'OpenBSD' {
-      case $ensure {
-        'installed', 'present': {
-          file { '/usr/local/bin/pip':
-            ensure  => link,
-            target  => "/usr/local/bin/pip-${version}",
-            owner   => 'root',
-            group   => 'wheel',
-            require => Package['pip'],
-          }
-        }
-        'uninstalled', 'absent': {
-          file { '/usr/local/bin/pip':
-            ensure => absent,
-          }
-        }
-      }
+    package { $package:
+      ensure   => $ensure,
+      provider => $provider,
+      source   => $source,
+      require  => Package[$setuptools],
     }
   } elsif $ensure in ['installed', 'present'] {
     # Use setuptools to bootstrap pip if we aren't using a package.
-    exec { 'easy_install pip':
+    exec { "easy_install pip":
       path    => ['/usr/local/bin', '/usr/bin', '/bin'],
       unless  => 'which pip',
-      require => Package['setuptools'],
+      require => Package[$package],
     }
   }
 }
