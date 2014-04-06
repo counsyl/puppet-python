@@ -26,7 +26,7 @@ class python (
   $source   = $python::params::source,
 ) inherits python::params {
   if $::osfamily == 'windows' {
-    # Include python::windows, this downloads the MSI and calculates paths.
+    # Include python::windows, this downloads the MSI and sets path variables.
     include python::windows
 
     # Get install options, package name and source for Windows.
