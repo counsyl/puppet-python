@@ -13,6 +13,7 @@ class python::params {
       $setuptools    = 'py-setuptools'
       $pip           = 'py-pip'
       $virtualenv    = 'py-virtualenv'
+      $interpreter   = "/usr/local/bin/python${version}"
       $site_packages = "/usr/local/lib/python${version}/site-packages"
     }
     solaris: {
@@ -22,6 +23,7 @@ class python::params {
       $package       = 'runtime/python-26'
       $provider      = 'pkg'
       $setuptools    = 'library/python-2/setuptools-26'
+      $interpreter   = '/usr/bin/python'
       $site_packages = "/usr/lib/python${version}/site-packages"
     }
     debian: {
@@ -43,6 +45,7 @@ class python::params {
       $devel         = 'python-dev'
       $pip           = 'python-pip'
       $virtualenv    = 'python-virtualenv'
+      $interpreter   = '/usr/bin/python'
 
       # Ubuntu is special -- `site-packages` is renamed to `dist-packages`;
       # and apt's packages install in /usr/lib whereas pip packages go
@@ -58,10 +61,28 @@ class python::params {
       $devel         = 'python-devel'
       $pip           = 'python-pip'
       $virtualenv    = 'python-virtualenv'
+      $interpreter   = '/usr/bin/python'
       $site_packages = "/usr/lib/python${version}/site-packages"
+    }
+    windows: {
+      $ensure        = 'installed'
+      $version       = '2.7'
+      $full_version  = '2.7.6'
+      # Other parameters, like $package, $interpreter, and $site_packages
+      # are set by `python::windows`.
     }
     default: {
       fail("Do not know how to install/configure Python on ${::osfamily}.\n")
     }
+  }
+
+  # Parameters for when using ez_setup.py.
+  $ez_version = '3.4.1'
+  $ez_base_url = 'https://pypi.python.org/packages/source/s/setuptools/'
+  if $::osfamily != 'windows' {
+    include sys
+    $ez_setup_owner = 'root'
+    $ez_setup_group = $sys::root_group
+    $ez_setup_mode = '0644'
   }
 }
