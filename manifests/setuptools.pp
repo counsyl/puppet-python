@@ -52,7 +52,12 @@ class python::setuptools(
   } elsif $ensure in ['installed', 'present'] {
     # When there's no package, then use ez_setup.py.
     if $::osfamily == 'windows' {
-      $ez_setup = "${python::scripts}\\ez_setup.py"
+      # Have to place ez_setup.py in same directory as interpreter as
+      # the `Scripts` folder doesn't exist yet.
+      $ez_setup_dir = inline_template(
+        "<%= File.dirname(scope['python::interpreter']) %>"
+      )
+      $ez_setup = "${ez_setup_dir}\\ez_setup.py"
       $easy_install = "${python::scripts}\\easy_install.exe"
     } else {
       $ez_setup = "${python::scripts}/ez_setup.py"
