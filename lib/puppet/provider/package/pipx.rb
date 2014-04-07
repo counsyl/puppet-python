@@ -4,12 +4,17 @@
 require 'puppet/provider/package'
 require 'xmlrpc/client'
 
+# So we can include the common PuppetX::Counsyl::Pip module methods.
+require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'counsyl', 'pip.rb'))
+
 Puppet::Type.type(:package).provide :pipx,
   :parent => ::Puppet::Provider::Package do
 
+  include PuppetX::Counsyl::Pip
+
   desc "Extended pip package provider for Python packages."
 
-  has_feature :installable, :uninstallable, :upgradeable, :versionable
+  has_feature :installable, :uninstallable, :upgradeable, :versionable, :install_options
 
   # Parse lines of output from `pip freeze`, which are structured as
   # _package_==_version_.
@@ -51,64 +56,6 @@ Puppet::Type.type(:package).provide :pipx,
       return provider_pip.properties if @resource[:name].downcase == provider_pip.name.downcase
     end
     return nil
-  end
-
-  # Ask the PyPI API for the latest version number.  There is no local
-  # cache of PyPI's package list so this operation will always have to
-  # ask the web service.
-  def latest
-    client = XMLRPC::Client.new2("https://pypi.python.org/pypi")
-    client.http_header_extra = {"Content-Type" => "text/xml"}
-    client.timeout = 10
-    result = client.call("package_releases", @resource[:name])
-    result.first
-  rescue Timeout::Error => detail
-    raise Puppet::Error, "Timeout while contacting pypi.python.org: #{detail}";
-  end
-
-  # Install a package.  The ensure parameter may specify installed,
-  # latest, a version number, or, in conjunction with the source
-  # parameter, an SCM revision.  In that case, the source parameter
-  # gives the fully-qualified URL to the repository.
-  def install
-    args = %w{install -q}
-    if @resource[:source]
-      if String === @resource[:ensure]
-        # If there's a SCM revision specified, ensure a `--ignore-installed` is
-        # is specified to ensure package is actually installed.
-        self.class.instances.each do |pip_package|
-          if pip_package.name == @resource[:name]
-            args << "--ignore-installed"
-            break
-          end
-        end
-        args << "#{@resource[:source]}@#{@resource[:ensure]}#egg=#{
-          @resource[:name]}"
-      else
-        args << "#{@resource[:source]}#egg=#{@resource[:name]}"
-      end
-    else
-      case @resource[:ensure]
-      when String
-        args << "#{@resource[:name]}==#{@resource[:ensure]}"
-      when :latest
-        args << "--upgrade" << @resource[:name]
-      else
-        args << @resource[:name]
-      end
-    end
-    lazy_pip *args
-  end
-
-  # Uninstall a package.  Uninstall won't work reliably on Debian/Ubuntu
-  # unless this issue gets fixed.
-  # <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=562544>
-  def uninstall
-    lazy_pip "uninstall", "-y", "-q", @resource[:name]
-  end
-
-  def update
-    install
   end
 
   # Execute a `pip` command.  If Puppet doesn't yet know how to do so,

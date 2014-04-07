@@ -1,4 +1,5 @@
 require 'uri'
+require 'puppet/parameter/package_options'
 
 Puppet::Type.newtype(:venv_package) do
   desc "Installs Python packages within a virtual environment."
@@ -20,6 +21,8 @@ Puppet::Type.newtype(:venv_package) do
         other package dependencies unless explicit action is taken by
         a user or another package. Held is considered a superset of
         installed."
+  feature :install_options, "The provider accepts options to be
+      passed to the installer command."
 
   ensurable do
     attr_accessor :latest
@@ -63,7 +66,6 @@ Puppet::Type.newtype(:venv_package) do
         :package_changed
       end
     end
-
     defaultto :installed
 
     # Override the parent method, because we've got all kinds of
@@ -165,7 +167,7 @@ Puppet::Type.newtype(:venv_package) do
   end
 
   newparam(:pypi) do
-    desc "The URL to use for the Python Packaging Index (PyPI).
+    desc "The URL to use for Python Packaging Index (PyPI) to query for latest packages.
        Defaults to https://pypi.python.org/pypi"
     defaultto "https://pypi.python.org/pypi"
     validate do |value|
@@ -173,6 +175,18 @@ Puppet::Type.newtype(:venv_package) do
         fail Puppet::Error, "Invalid PyPI URL provided."
       end
     end
+  end
+
+  newparam(:install_options, :parent => Puppet::Parameter::PackageOptions, :required_features => :install_options) do
+    desc <<-EOT
+        An array of additional options to pass when installing a Python
+        package with pip.  For example, to use an internal PyPI url:
+
+            venv_package { 'requests@/path/to/venv':
+              ensure          => installed,
+              install_options => [ { '--index-url' => 'https://pypi.mycorp.com' } ],
+            }
+      EOT
   end
 
   # Automatically require the `venv` resource that this package will be

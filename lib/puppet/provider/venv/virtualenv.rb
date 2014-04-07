@@ -13,11 +13,19 @@ Puppet::Type.type(:venv).provide(:virtualenv) do
     # The virtual environment should be a directory, and contain files
     # for activation, pip, and python.
     if File.directory?(@resource[:path])
-      bindir = File.join(@resource[:path], 'bin')
-      return (File.directory?(bindir) and
-              File.file?(File.join(bindir, 'activate')) and
-              File.file?(File.join(bindir, 'pip')) and
-              File.file?(File.join(bindir, 'python')))
+      if Facter.value(:osfamily) == 'windows' then
+        scripts = File.join(@resource[:path], 'Scripts')
+        return (File.directory?(scripts) and
+                File.file?(File.join(scripts, 'activate.bat')) and
+                File.file?(File.join(scripts, 'pip.exe')) and
+                File.file?(File.join(scripts, 'python.exe')))
+      else
+        bindir = File.join(@resource[:path], 'bin')
+        return (File.directory?(bindir) and
+                File.file?(File.join(bindir, 'activate')) and
+                File.file?(File.join(bindir, 'pip')) and
+                File.file?(File.join(bindir, 'python')))
+      end
     else
       return false
     end

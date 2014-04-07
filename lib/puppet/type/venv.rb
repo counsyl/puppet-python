@@ -108,7 +108,7 @@ Puppet::Type.newtype(:venv) do
     desc "Try to use symlinks rather than copies when not platform default."
   end
 
-  newparam(:system_site_packages, :boolean => true) do
+  newparam(:system_site_packages, :boolean => false) do
     desc "Give access to the global site-packages dir to the venv."
   end
 
