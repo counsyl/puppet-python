@@ -31,8 +31,12 @@ Puppet::Type.newtype(:venv) do
   newproperty(:owner) do
     desc "The owner of the virtual environment."
 
-    if Facter.value(:osfamily) == 'windows'
-      raise(Puppet::Error, 'Cannot set venv owner on Windows')
+    validate do |owner|
+      if owner and owner != ""
+        if Facter.value(:osfamily) == 'windows'
+          raise(Puppet::Error, 'Cannot set venv owner on Windows')
+        end
+      end
     end
 
     def insync?(current)
@@ -64,12 +68,14 @@ Puppet::Type.newtype(:venv) do
   newproperty(:group) do
     desc "The group of the virtual environment."
 
-    if Facter.value(:osfamily) == 'windows'
-      raise(Puppet::Error, 'Cannot set group on Windows')
-    end
-
     validate do |group|
-      raise(Puppet::Error, "Invalid group name '#{group.inspect}'") unless group and group != ""
+      if group and group != ""
+        if Facter.value(:osfamily) == 'windows'
+          raise(Puppet::Error, 'Cannot set group on Windows')
+        end
+      else
+        raise(Puppet::Error, "Invalid group name '#{group.inspect}'")
+      end
     end
 
     def insync?(current)
