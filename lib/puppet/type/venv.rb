@@ -31,6 +31,10 @@ Puppet::Type.newtype(:venv) do
   newproperty(:owner) do
     desc "The owner of the virtual environment."
 
+    if Facter.value(:osfamily) == 'windows'
+      raise(Puppet::Error, 'Cannot set venv owner on Windows')
+    end
+
     def insync?(current)
       @should.map! do |val|
         provider.name2uid(val) or raise "Could not find user #{val}"
@@ -59,6 +63,10 @@ Puppet::Type.newtype(:venv) do
   # Taken from 'lib/puppet/type/file/group.rb'
   newproperty(:group) do
     desc "The group of the virtual environment."
+
+    if Facter.value(:osfamily) == 'windows'
+      raise(Puppet::Error, 'Cannot set group on Windows')
+    end
 
     validate do |group|
       raise(Puppet::Error, "Invalid group name '#{group.inspect}'") unless group and group != ""

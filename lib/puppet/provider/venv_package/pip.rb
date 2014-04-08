@@ -32,10 +32,19 @@ Puppet::Type.type(:venv_package).provide :pip,
     end
   end
 
+  # Returns the path to pip command for given path to the virtualenv.
+  def pip_cmd(venv)
+    if Facter.value(:osfamily) == 'windows' then
+      return File.join(venv, 'Scripts', 'pip.exe')
+    else
+      return File.join(venv, 'bin', 'pip')
+    end
+  end
+
   def query
     packages = []
     venv = @resource[:name].split('@')[1]
-    pip_cmd = which(File.join(venv, 'bin', 'pip')) or return []
+    pip_cmd = which(pip_cmd(venv)) or return []
     execpipe "#{pip_cmd} freeze" do |process|
       process.collect do |line|
         next unless options = parse(line, venv)
@@ -74,7 +83,7 @@ Puppet::Type.type(:venv_package).provide :pip,
       self.fail "Could not determine package and venv: #{detail}"
     end
 
-    if pathname = which(File.join(venv, 'bin', 'pip'))
+    if pathname = which(pip_cmd(venv))
       self.class.commands :pip => pathname, :su => 'su'
 
       # Does the virtualenv have the `owner` property set?  If so,
