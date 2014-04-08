@@ -31,6 +31,14 @@ Puppet::Type.newtype(:venv) do
   newproperty(:owner) do
     desc "The owner of the virtual environment."
 
+    validate do |owner|
+      if owner and owner != ""
+        if Facter.value(:osfamily) == 'windows'
+          raise(Puppet::Error, 'Cannot set venv owner on Windows')
+        end
+      end
+    end
+
     def insync?(current)
       @should.map! do |val|
         provider.name2uid(val) or raise "Could not find user #{val}"
@@ -61,7 +69,13 @@ Puppet::Type.newtype(:venv) do
     desc "The group of the virtual environment."
 
     validate do |group|
-      raise(Puppet::Error, "Invalid group name '#{group.inspect}'") unless group and group != ""
+      if group and group != ""
+        if Facter.value(:osfamily) == 'windows'
+          raise(Puppet::Error, 'Cannot set group on Windows')
+        end
+      else
+        raise(Puppet::Error, "Invalid group name '#{group.inspect}'")
+      end
     end
 
     def insync?(current)
@@ -108,7 +122,7 @@ Puppet::Type.newtype(:venv) do
     desc "Try to use symlinks rather than copies when not platform default."
   end
 
-  newparam(:system_site_packages, :boolean => true) do
+  newparam(:system_site_packages, :boolean => false) do
     desc "Give access to the global site-packages dir to the venv."
   end
 

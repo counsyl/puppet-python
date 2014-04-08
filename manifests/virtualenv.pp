@@ -34,4 +34,8 @@ class python::virtualenv(
       require  => Class['python'],
     }
   }
+
+  # Ensure this class is a requirement for the venv/venv_package types.
+  Class['python::virtualenv'] -> Venv<| |>
+  Class['python::virtualenv'] -> Venv_package<| |>
 }

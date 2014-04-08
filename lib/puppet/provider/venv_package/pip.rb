@@ -2,12 +2,17 @@ require 'etc'
 require 'xmlrpc/client'
 require 'puppet/provider/package'
 
+# So we can include the common PuppetX::Counsyl::Pip module methods.
+require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'puppet_x', 'counsyl', 'pip.rb'))
+
 Puppet::Type.type(:venv_package).provide :pip,
   :parent => ::Puppet::Provider::Package do
 
+  include PuppetX::Counsyl::Pip
+
   desc "pip provider for venv_package"
 
-  has_feature :installable, :uninstallable, :upgradeable, :versionable
+  has_feature :installable, :uninstallable, :upgradeable, :versionable, :install_options
 
   ## Class Methods
 
@@ -27,10 +32,19 @@ Puppet::Type.type(:venv_package).provide :pip,
     end
   end
 
+  # Returns the path to pip command for given path to the virtualenv.
+  def pip_cmd(venv)
+    if Facter.value(:osfamily) == 'windows' then
+      return File.join(venv, 'Scripts', 'pip.exe')
+    else
+      return File.join(venv, 'bin', 'pip')
+    end
+  end
+
   def query
     packages = []
     venv = @resource[:name].split('@')[1]
-    pip_cmd = which(File.join(venv, 'bin', 'pip')) or return []
+    pip_cmd = which(pip_cmd(venv)) or return []
     execpipe "#{pip_cmd} freeze" do |process|
       process.collect do |line|
         next unless options = parse(line, venv)
@@ -59,41 +73,6 @@ Puppet::Type.type(:venv_package).provide :pip,
     raise Puppet::Error, "Timeout while contacting pypi.python.org: #{detail}";
   end
 
-  # Install a package.  The ensure parameter may specify installed,
-  # latest, a version number, or, in conjunction with the source
-  # parameter, an SCM revision.  In that case, the source parameter
-  # gives the fully-qualified URL to the repository.
-  def install
-    pypkg = @resource[:name].split('@')[0]
-
-    args = %w{install -q}
-    if @resource[:source]
-      if String === @resource[:ensure]
-        args << "#{@resource[:source]}@#{@resource[:ensure]}#egg=#{pypkg}"
-      else
-        args << "#{@resource[:source]}#egg=#{pypkg}"
-      end
-    else
-      case @resource[:ensure]
-      when String
-        args << "#{pypkg}==#{@resource[:ensure]}"
-      when :latest
-        args << "--upgrade" << pypkg
-      else
-        args << pypkg
-      end
-    end
-    lazy_pip *args
-  end
-
-  def uninstall
-    lazy_pip "uninstall", "-y", "-q", @resource[:name].split('@')[0]
-  end
-
-  def update
-    install
-  end
-
   # Execute a `pip` command.  If Puppet doesn't yet know how to do so,
   # try to teach it and if even that fails, raise the error.
   private
@@ -104,7 +83,7 @@ Puppet::Type.type(:venv_package).provide :pip,
       self.fail "Could not determine package and venv: #{detail}"
     end
 
-    if pathname = which(File.join(venv, 'bin', 'pip'))
+    if pathname = which(pip_cmd(venv))
       self.class.commands :pip => pathname, :su => 'su'
 
       # Does the virtualenv have the `owner` property set?  If so,

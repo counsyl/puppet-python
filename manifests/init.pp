@@ -33,7 +33,7 @@ class python (
     $install_options = $python::windows::install_options
     $package_source = $python::windows::package_source
     $python_package = $python::windows::package
-    
+
     # Set up variables that couldn't be set in python::params.
     $interpreter = $python::windows::interpreter
     $scripts = $python::windows::scripts
@@ -57,19 +57,23 @@ class python (
 
   # Include setuptools and pip for packaging.  Ensure relationships are
   # setup between the Python package and the setuptools/pip classes.
+  # Finally, an anchor is used to ensure the setuptools/pip classes
+  # are contained within this class.
   include python::setuptools
   include python::pip
-  Package[$python_package] -> Class['python::setuptools'] -> Class['python::pip']
-
-  # Ensure this class comes before any package resources with a `pip` or `pipx`
-  # provider, as well as any `venv` resources.
-  Class['python'] -> Package<| provider == pip |>
-  Class['python'] -> Package<| provider == pipx |>
-  Class['python'] -> Venv<| |>
+  Package[$python_package]    ->
+  Class['python::setuptools'] ->
+  Class['python::pip']        ->
+  anchor { 'python': }
 
   # OpenBSD needs some extra links to complete the experience.
   if $::osfamily == 'OpenBSD' {
     include python::openbsd
     Class['python::pip'] -> Class['python::openbsd']
   }
+
+  # Ensure this class comes before any package resources with a `pip` or `pipx`
+  # provider, as well as any `venv` resources.
+  Class['python'] -> Package<| provider == pip |>
+  Class['python'] -> Package<| provider == pipx |>
 }
