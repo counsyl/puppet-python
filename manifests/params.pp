@@ -77,7 +77,7 @@ class python::params {
   }
 
   # Parameters for when using ez_setup.py.
-  $ez_version = '3.4.1'
+  $ez_version = '3.4.3'
   $ez_base_url = 'https://pypi.python.org/packages/source/s/setuptools/'
   if $::osfamily != 'windows' {
     include sys
