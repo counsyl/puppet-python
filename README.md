@@ -18,8 +18,8 @@ include python
 include python::virtualenv
 ```
 
-Windows users: please consult the [Windows Notes](#window-notes) before you
-continue.
+This module supports Debian, RedHat, OpenBSD, Solaris, and Windows platforms
+-- Windows users should read the [Windows Notes](#windows-notes).
 
 Python Classes
 --------------
@@ -60,6 +60,19 @@ include python
 include python::flask
 ```
 
+### `python::virtualenv`
+
+Installs [virtualenv](http://www.virtualenv.org), using the default system
+package.  If the system package is too old for your taste, tell it to be
+installed using `pip` instead, for example:
+
+```puppet
+include python
+class { 'python::virtualenv':
+  provider => 'pip',
+}
+```
+
 Python Types
 ------------
 
@@ -70,7 +83,8 @@ The `pipx` package provider is an enhanced version of Puppet's own
 [`pip`](http://docs.puppetlabs.com/references/latest/type.html#package-provider-pip)
 provider.  It includes such enhancements as:
 
-* Implements the [`install_options`](http://docs.puppetlabs.com/references/latest/type.html#package-attribute-install-options) feature
+* Implements the [`install_options`](http://docs.puppetlabs.com/references/latest/type.html#package-attribute-install-options) feature,
+  where you may specify the [pip install options](http://pip.readthedocs.org/en/latest/reference/pip_install.html#options).
 * Improvements for installing packages from version control
 * Uses HTTPS to query PyPI when setting [`ensure`](http://docs.puppetlabs.com/references/latest/type.html#package-attribute-ensure) to 'latest'
 
@@ -103,6 +117,17 @@ include python::virtualenv
 venv { '/srv/venv': }
 ```
 
+To have the virtualenv be owned by a user other than the one running
+Puppet (typically `root`), you can set the `owner` and `group` parameters
+(these are not supported on Windows):
+
+```puppet
+venv { '/srv/venv':
+  owner => 'justin',
+  group => 'users',
+}
+```
+
 To have the virtualenv include the system site packages:
 
 ```puppet
@@ -121,8 +146,43 @@ venv { '/srv/venv':
 
 ### `venv_package`
 
+This type installs packages in a Python virtual environment -- the title of
+a `venv_package` resource must contain the name of the package and the path
+to to the virtual environment separated by the `@` symbol.  For example,
+to install Django into the `venv` defined above:
 
-This type installs packages in a Python virtual environment.
+```puppet
+venv_package { 'Django@/srv/venv':
+  ensure => installed,
+}
+```
+
+The `venv` specifed after the `@` will be [automatically required](http://docs.puppetlabs.com/learning/ordering.html#autorequire).
+Like the [`pipx`](#pipx) package provider, you may also specify `install_options`, e.g.:
+
+```puppet
+venv_package { 'Flask@/srv/venv':
+  ensure          => installed,
+  install_options => [ { '--index-url' => 'https://pypi.mycorp.com' } ],
+}
+```
+
+Just like with Puppet's own `pip` provider, you can install using VCS --
+for example, to install `Flask` from GitHub (at the `0.8.1` version tag):
+
+```
+include sys::git
+
+venv_package { 'Flask@/srv/venv':
+  ensure  => '0.8.1',
+  source  => 'git+https://github.com/mitsuhiko/flask',
+  require => Class['sys::git'],
+}
+```
+
+Note: This had to be its own type (rather than a package provider)
+due to the fact that there can be multiple packages on a system in
+different virtual environments.
 
 Windows Notes
 -------------
@@ -130,10 +190,11 @@ Windows Notes
 Windows support requires the [`counsyl-windows`](https://github.com/counsyl/puppet-windows)
 module.  Because `%Path%` updates aren't reflected in Puppet's current session,
 you will see errors about not being able to find the `pip` and/or `virtualenv`
-commands -- running Puppet again should make these errors go away on a fresh system.
-In addition, due to the nature of Windows platforms, customizations should be done on 
-the `python::windows` class before including the `python` class.  For example,
-to force the use the 32-bit version of Python 2.6.6 you would use the following:
+commands -- running Puppet again should make these errors go away on a fresh
+system.  In addition, due to the nature of Windows platforms, customizations
+should be done on the `python::windows` class before including `python`.
+For example, to force the use the 32-bit version of Python 2.6.6 you would
+use the following:
 
 ```puppet
 class { 'python::windows':
