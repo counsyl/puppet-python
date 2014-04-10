@@ -9,9 +9,9 @@ virtual environments ([`venv`](#venv)) and packages inside virtual environments
 
 
 By default, including the `python` class installs Python, setuptools, and pip;
-the `python::virtualenv` class installs virtualenv.  Thus, to have Python, pip,
-and virtualenv installed on your system simply place the following in your
-Puppet manifest:
+the [`python::virtualenv`](#pythonvirtualenv) class installs virtualenv.
+Thus, to have Python, pip, and virtualenv installed on your system simply
+place the following in your Puppet manifest:
 
 ```puppet
 include python
@@ -170,7 +170,7 @@ venv_package { 'Flask@/srv/venv':
 Just like with Puppet's own `pip` provider, you can install using VCS --
 for example, to install `Flask` from GitHub (at the `0.8.1` version tag):
 
-```
+```puppet
 include sys::git
 
 venv_package { 'Flask@/srv/venv':
