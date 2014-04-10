@@ -128,7 +128,7 @@ venv { '/srv/venv':
 }
 ```
 
-When using the `owner` parameter, packages Puppet will cast itself
+When using the `owner` parameter Puppet will cast itself
 as this user when installing packages with [`venv_package`](#venv_package)
 -- this improves security especially when playing with unknown packages.
 
