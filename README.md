@@ -18,8 +18,53 @@ include python
 include python::virtualenv
 ```
 
-`pipx`
-------
+Windows users: please consult the [Windows Notes](#window-notes) before you
+continue.
+
+Python Classes
+--------------
+
+### `python::devel`
+
+Instals the Python development headers package for the system, useful
+if you need to install packages with C extensions with `pip`.  For
+example, to install [PyCrypto](https://www.dlitz.net/software/pycrypto/)
+you could use the following (assuming a non-Windows platform):
+
+```puppet
+include python
+include python::devel
+
+package { 'pycrypto':
+  ensure   => installed,
+  provider => 'pip',
+  require  => Class['python::devel'],
+}
+```
+
+### `python::django`
+
+Installs Django in the system site-packages using `pip`.
+
+```puppet
+include python
+include python::django
+```
+
+### `python::flask`
+
+Installs Flask in the system site-packages using `pip`, for example:
+
+```puppet
+include python
+include python::flask
+```
+
+Python Types
+------------
+
+### `pipx`
+
 
 The `pipx` package provider is an enhanced version of Puppet's own
 [`pip`](http://docs.puppetlabs.com/references/latest/type.html#package-provider-pip)
@@ -43,26 +88,52 @@ package { 'requests':
 }
 ```
 
-`venv`
-------
+### `venv`
 
-The `venv` type enables the management of Python virtual environments with Puppet.
+The `venv` type enables the management of Python virtual environments.
+The name of the `venv` resource is the path to the virtual environment
+-- for example to have your virtualenv in `/srv/venv`, you'd use:
 
-`venv_package`
---------------
+```puppet
+# Python and virtualenv are required to use `venv` type.
+include python
+include python::virtualenv
+
+# Creating a virtualenv in /srv/venv.
+venv { '/srv/venv': }
+```
+
+To have the virtualenv include the system site packages:
+
+```puppet
+venv { '/srv/venv':
+  system_site_packages => true,
+}
+```
+
+To delete the virtualenv from the system:
+
+```puppet
+venv { '/srv/venv':
+  ensure => absent,
+}
+```
+
+### `venv_package`
+
 
 This type installs packages in a Python virtual environment.
 
-Windows
--------
+Windows Notes
+-------------
 
 Windows support requires the [`counsyl-windows`](https://github.com/counsyl/puppet-windows)
-module.  Because `%Path%` updates aren't reflected in Puppet's current session, you
-will see errors about not being able to find the `pip` and/or `virtualenv` commands --
-running Puppet again should make these errors go away on a fresh system.  In addition,
-due to the nature of Windows platforms, customizations should be done on 
-the `python::windows` class before including `python`.  For example, to force
-the use the 32-bit version of Python 2.6.6 you would:
+module.  Because `%Path%` updates aren't reflected in Puppet's current session,
+you will see errors about not being able to find the `pip` and/or `virtualenv`
+commands -- running Puppet again should make these errors go away on a fresh system.
+In addition, due to the nature of Windows platforms, customizations should be done on 
+the `python::windows` class before including the `python` class.  For example,
+to force the use the 32-bit version of Python 2.6.6 you would use the following:
 
 ```puppet
 class { 'python::windows':
