@@ -81,12 +81,12 @@ Python Types
 
 The `pipx` package provider is an enhanced version of Puppet's own
 [`pip`](http://docs.puppetlabs.com/references/latest/type.html#package-provider-pip)
-provider.  It includes such enhancements as:
+provider, specifically it:
 
 * Implements the [`install_options`](http://docs.puppetlabs.com/references/latest/type.html#package-attribute-install-options) feature,
   where you may specify the [pip install options](http://pip.readthedocs.org/en/latest/reference/pip_install.html#options).
-* Improvements for installing packages from version control
 * Uses HTTPS to query PyPI when setting [`ensure`](http://docs.puppetlabs.com/references/latest/type.html#package-attribute-ensure) to 'latest'
+* Contains improvements for installing packages from version control
 
 For example, assuming you had an internal PyPI mirror at
 `https://pypi.mycorp.com`, you could install the `requests` package system-wide
@@ -127,6 +127,10 @@ venv { '/srv/venv':
   group => 'users',
 }
 ```
+
+When using the `owner` parameter, packages Puppet will cast itself
+as this user when installing packages with [`venv_package`](#venv_package)
+-- this improves security especially when playing with unknown packages.
 
 To have the virtualenv include the system site packages:
 
