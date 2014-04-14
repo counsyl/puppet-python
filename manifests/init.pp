@@ -57,14 +57,11 @@ class python (
 
   # Include setuptools and pip for packaging.  Ensure relationships are
   # setup between the Python package and the setuptools/pip classes.
-  # Finally, an anchor is used to ensure the setuptools/pip classes
-  # are contained within this class.
   include python::setuptools
   include python::pip
   Package[$python_package]    ->
   Class['python::setuptools'] ->
-  Class['python::pip']        ->
-  anchor { 'python': }
+  Class['python::pip']
 
   # OpenBSD needs some extra links to complete the experience.
   if $::osfamily == 'OpenBSD' {
