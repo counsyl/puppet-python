@@ -40,11 +40,11 @@ module PuppetX
         end
         if @resource[:source]
           if String === @resource[:ensure]
-            # If there's a SCM revision specified, ensure a `--ignore-installed`
+            # If there's a SCM revision specified, ensure a `--upgrade`
             # is specified to ensure package is actually installed.
             self.class.instances.each do |pip_package|
               if pip_package.name == pypkg
-                args << "--ignore-installed"
+                args << '--upgrade'
                 break
               end
             end
