@@ -11,13 +11,13 @@ module PuppetX
           pypi_url = @resource[:pypi]
         else
           # TODO: Support trying to use `--index-url` from install_options.
-          pypi_url = "https://pypi.python.org/pypi"
+          pypi_url = 'https://pypi.python.org/pypi'
         end
         client = XMLRPC::Client.new2(pypi_url)
-        client.http_header_extra = {"Content-Type" => "text/xml"}
+        client.http_header_extra = {'Content-Type' => 'text/xml'}
         client.timeout = 10
         self.debug "Querying latest for '#{pypkg}' from '#{pypi_url}'"
-        result = client.call("package_releases", pypkg)
+        result = client.call('package_releases', pypkg)
         result.first
       rescue Timeout::Error => detail
         raise Puppet::Error, "Timeout while contacting PyPI: #{detail}";
@@ -57,7 +57,7 @@ module PuppetX
           when String
             args << "#{pypkg}==#{@resource[:ensure]}"
           when :latest
-            args << "--upgrade" << pypkg
+            args << '--upgrade' << pypkg
           else
             args << pypkg
           end
@@ -69,7 +69,7 @@ module PuppetX
       # unless this issue gets fixed.
       # <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=562544>
       def uninstall
-        lazy_pip "uninstall", "-y", "-q", @resource[:name]
+        lazy_pip 'uninstall', '-y', '-q', @resource[:name]
       end
 
       def update
