@@ -6,8 +6,8 @@ module PuppetX
       # ask the web service.
       def latest
         pypkg = @resource[:name].split('@')[0]
-        if @resource[:pypi]
-          # Setting PyPI url URL supported on `venv_package`.
+        if @resource.class.validattr?(:pypi)
+          # Setting PyPI URL parameter (supported only on `venv_package`).
           pypi_url = @resource[:pypi]
         else
           # TODO: Support trying to use `--index-url` from install_options.
@@ -20,7 +20,7 @@ module PuppetX
         result = client.call("package_releases", pypkg)
         result.first
       rescue Timeout::Error => detail
-        raise Puppet::Error, "Timeout while contacting pypi.python.org: #{detail}";
+        raise Puppet::Error, "Timeout while contacting PyPI: #{detail}";
       end
 
       # Install a package.  The ensure parameter may specify installed,
