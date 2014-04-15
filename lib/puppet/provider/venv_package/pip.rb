@@ -57,22 +57,6 @@ Puppet::Type.type(:venv_package).provide :pip,
     return nil
   end
 
-  # Ask the PyPI API for the latest version number.  There is no local
-  # cache of PyPI's package list so this operation will always have to
-  # ask the web service.
-  def latest
-    pypkg = @resource[:name].split('@')[0]
-    pypi_url = @resource[:pypi]
-    client = XMLRPC::Client.new2(pypi_url)
-    client.http_header_extra = {"Content-Type" => "text/xml"}
-    client.timeout = 10
-    self.debug "Querying latest for '#{pypkg}' from '#{pypi_url}'"
-    result = client.call("package_releases", pypkg)
-    result.first
-  rescue Timeout::Error => detail
-    raise Puppet::Error, "Timeout while contacting pypi.python.org: #{detail}";
-  end
-
   # Execute a `pip` command.  If Puppet doesn't yet know how to do so,
   # try to teach it and if even that fails, raise the error.
   private
