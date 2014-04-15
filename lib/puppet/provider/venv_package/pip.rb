@@ -68,8 +68,6 @@ Puppet::Type.type(:venv_package).provide :pip,
     end
 
     if pathname = which(pip_cmd(venv))
-      self.class.commands :pip => pathname, :su => 'su'
-
       # Does the virtualenv have the `owner` property set?  If so,
       # we'll want to run pip in the same context as them by wrapping
       # the virtualenv pip in a `su` call.
@@ -77,6 +75,11 @@ Puppet::Type.type(:venv_package).provide :pip,
       venv_owner = venv_resource.parameters[:owner]
 
       if venv_owner
+        # Set up pip command for virtualenv, and su command.
+        # TODO: Use `execute()` method instead of `su` command when
+        #       installing package as different user/group.
+        self.class.commands :pip => pathname, :su => 'su'
+
         # Depending on when this is invoked, the parent's property
         # may have already been converted to an integer -- thus,
         # convert it to a username for use with `su`.
@@ -89,6 +92,9 @@ Puppet::Type.type(:venv_package).provide :pip,
         # Call pip as the virtualenv owner.
         su *['-l', owner, '-c', ([pathname] + args).join(' ')]
       else
+        # Set up pip command for virtualenv.
+        self.class.commands :pip => pathname
+
         # Call pip normally.
         pip *args
       end
