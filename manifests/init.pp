@@ -68,9 +68,4 @@ class python (
     include python::openbsd
     Class['python::pip'] -> Class['python::openbsd']
   }
-
-  # Ensure this class comes before any package resources with a `pip` or `pipx`
-  # provider, as well as any `venv` resources.
-  Class['python'] -> Package<| provider == pip |>
-  Class['python'] -> Package<| provider == pipx |>
 }

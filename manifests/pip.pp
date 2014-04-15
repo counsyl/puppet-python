@@ -47,4 +47,9 @@ class python::pip(
       creates => $pip_script,
     }
   }
+
+  # Ensure this class comes before any package resources with a
+  # `pip` or `pipx` provider.
+  Class['python::pip'] -> Package<| provider == pip |>
+  Class['python::pip'] -> Package<| provider == pipx |>
 }
