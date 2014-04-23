@@ -24,10 +24,37 @@ This module supports Debian, RedHat, OpenBSD, Solaris, and Windows platforms
 Python Classes
 --------------
 
+### `python`
+
+Installs Python, setuptools, and pip using the system packages for the
+platform, when available.  If the system packages are too old, you may
+bootstrap setuptools and pip using the built-in
+[`ez_setup.py`](https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py)
+template, e.g.:
+
+```puppet
+class { 'python':
+  ez_setup => true,
+}
+```
+
+### `python::virtualenv`
+
+Installs [virtualenv](http://www.virtualenv.org), using the default system
+package.  If the system package is too old for your taste, tell it to be
+installed using `pip` by setting the `package` parameter to `false`:
+
+```puppet
+include python
+class { 'python::virtualenv':
+  package => false,
+}
+```
+
 ### `python::devel`
 
-Instals the Python development headers package for the system, useful
-if you need to install packages with C extensions with `pip`.  For
+Installs the Python development headers package for the system, useful
+when you need to install packages with C extensions with `pip`.  For
 example, to install [PyCrypto](https://www.dlitz.net/software/pycrypto/)
 you could use the following (assuming a non-Windows platform):
 
@@ -44,7 +71,7 @@ package { 'pycrypto':
 
 ### `python::django`
 
-Installs Django in the system site-packages using `pip`.
+Installs [Django](https://www.djangoproject.com) in the system site-packages using `pip`.
 
 ```puppet
 include python
@@ -53,31 +80,26 @@ include python::django
 
 ### `python::flask`
 
-Installs Flask in the system site-packages using `pip`, for example:
+Installs [Flask](http://flask.readthedocs.org) in the system site-packages using `pip`, for example:
 
 ```puppet
 include python
 include python::flask
 ```
 
-### `python::virtualenv`
+### `python::requests`
 
-Installs [virtualenv](http://www.virtualenv.org), using the default system
-package.  If the system package is too old for your taste, tell it to be
-installed using `pip` instead, for example:
+Installs [requests](http://requests.readthedocs.org/) in the system site-packages using `pip`, for example:
 
 ```puppet
 include python
-class { 'python::virtualenv':
-  provider => 'pip',
-}
+include python::requests
 ```
 
 Python Types
 ------------
 
 ### `pipx`
-
 
 The `pipx` package provider is an enhanced version of Puppet's own
 [`pip`](http://docs.puppetlabs.com/references/latest/type.html#package-provider-pip)
