@@ -120,10 +120,7 @@ class python (
     if $::osfamily == 'windows' {
       # Have to place ez_setup.py in same directory as interpreter as
       # the `Scripts` folder doesn't exist yet.
-      $ez_setup_dir = inline_template(
-        "<%= File.dirname(@interpreter) %>"
-      )
-      $ez_setup_py = "${ez_setup_dir}\\ez_setup.py"
+      $ez_setup_py = "${python::windows::path}\\ez_setup.py"
       $easy_install = "${scripts}\\easy_install.exe"
     } else {
       $ez_setup_py = "${scripts}/ez_setup.py"
