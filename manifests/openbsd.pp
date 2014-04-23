@@ -2,7 +2,9 @@
 #
 # Creates symbolic links for a better experience on OpenBSD.
 #
-class python::openbsd inherits python::params {
+class python::openbsd(
+  $ez_setup,
+) inherits python::params {
   file { '/usr/local/bin/python':
     ensure  => link,
     target  => $interpreter,
@@ -24,16 +26,14 @@ class python::openbsd inherits python::params {
     group   => 'wheel',
   }
 
-  if $python::setuptools::package {
+  if ! $ez_setup {
     file { '/usr/local/bin/easy_install':
       ensure  => link,
       target  => "/usr/local/bin/easy_install-${version}",
       owner   => 'root',
       group   => 'wheel',
     }
-  }
 
-  if $python::pip::package {
     file { '/usr/local/bin/pip':
       ensure  => link,
       target  => "/usr/local/bin/pip-${version}",
