@@ -145,7 +145,7 @@ Puppet::Type.newtype(:venv_package) do
     desc "The name of the package to install"
 
     validate do |value|
-      m = /^([\w\-\.]+)@(.+)$/.match(value)
+      m = /^([\w\-\.\[\]]+)@(.+)$/.match(value)
       unless m
         fail Puppet::Error, "Invalid name -- must take form '<package>@<venv>'."
       end
