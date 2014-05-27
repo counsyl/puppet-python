@@ -1,5 +1,5 @@
 name    'counsyl-python'
-version '0.9.6'
+version '0.9.7'
 source  'git://github.com/counsyl/puppet-python.git'
 author  'Counsyl, Inc.'
 license 'Apache License, Version 2.0'
