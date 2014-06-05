@@ -67,7 +67,7 @@ class python::params {
     windows: {
       $ensure        = 'installed'
       $version       = '2.7'
-      $full_version  = '2.7.6'
+      $full_version  = '2.7.7'
       # Other parameters, like $package, $interpreter, and $site_packages
       # are set by `python::windows`.
     }
@@ -77,7 +77,7 @@ class python::params {
   }
 
   # Parameters for when using ez_setup.py.
-  $ez_version = '3.6'
+  $ez_version = '4.0.1'
   $ez_base_url = 'https://pypi.python.org/packages/source/s/setuptools/'
   if $::osfamily != 'windows' {
     include sys
