@@ -13,10 +13,6 @@
 #  Directory to place the pip configuration file in. Defaults to the `.pip` dir
 #  in the user's home directory.
 #
-# [*cache_dir*]
-#  Directory to place pip cache directories in. Defaults to the same value as
-#  `conf_dir`.
-#
 # [*index_url*]
 #  Location of the primary PyPi index to use.
 #
@@ -25,27 +21,32 @@
 #
 define python::pip_conf(
   $user            = $name,
-  $conf_dir        = "/home/${user}/.pip",
-  $cache_dir       = $conf_dir,
+  $conf_dir        = "/home/${name}/.pip",
   $index_url       = undef,
   $extra_index_url = undef,
 ) {
-  $download_cache = "${cache_dir}/downloads"
-  $wheel_cache    = "${cache_dir}/wheels"
+  $pip_config     = "${conf_dir}/pip.conf"
+  $download_cache = "${conf_dir}/downloads"
+  $wheel_cache    = "${conf_dir}/wheels"
 
-  $pip_dirs = [$conf_dir, $cache_dir, $download_cache, $wheel_cache]
-  file { $pip_dirs:
+  file { $conf_dir:
     ensure => directory,
     owner  => $user,
     mode   => '0644',
   }
 
-  $pip_config = "${conf_dir}/pip.conf"
+  $cache_dirs = [$download_cache, $wheel_cache]
+  file { $cache_dirs:
+    ensure => directory,
+    owner  => $user,
+    mode   => '0644',
+  }
+
   file { $pip_config:
     ensure  => file,
     owner   => $user,
     mode    => '0644',
     content => template('python/pip.conf.erb'),
-    require => File[$pip_dirs],
+    require => File[$conf_dir, $cache_dirs],
   }
 }
