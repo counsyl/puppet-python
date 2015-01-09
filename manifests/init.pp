@@ -79,6 +79,17 @@ class python (
 
     # Ensure that python::windows comes before the package.
     Class['python::windows'] -> Package[$python_package]
+  } elsif $::osfamily == 'Darwin' {
+    include python::darwin
+    # Get install options, package name and source for Darwin.
+    $install_options = $python::darwin::install_options
+    $package_source = $python::darwin::package_source
+    $python_package = $python::darwin::package
+
+    # Set up variables that couldn't be set in python::params.
+    $interpreter = $python::darwin::interpreter
+    $scripts = $python::darwin::scripts
+    $site_packages = $python::darwin::site_packages
   } else {
     $install_options = undef
     $package_source = $source

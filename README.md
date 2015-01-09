@@ -18,7 +18,7 @@ include python
 include python::virtualenv
 ```
 
-This module supports Debian, RedHat, OpenBSD, Solaris, and Windows platforms
+This module supports Debian, RedHat, OpenBSD, Solaris, Windows, and Darwin platforms
 -- Windows users should read the [Windows Notes](#windows-notes).
 
 Python Classes
