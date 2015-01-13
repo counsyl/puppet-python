@@ -1,0 +1,14 @@
+{
+  "name": "counsyl-python",
+  "version": "0.9.8",
+  "author": "Counsyl, Inc.",
+  "summary": "Installs the Python language runtime",
+  "license": "Apache License, Version 2.0",
+  "source": "git://github.com/counsyl/puppet-python.git",
+  "project_page": "https://github.com/counsyl/puppet-python",
+  "issues_url": "https://github.com/counsyl/puppet-python/issues",
+  "description": "Installs the Python language runtime",
+  "dependencies": [
+    {"name":"counsyl/sys","version_requirement":">= 0.9.15"}
+  ]
+}

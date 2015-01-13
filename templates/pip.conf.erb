@@ -1,0 +1,13 @@
+[global]
+<% if @index_url -%>
+index_url = <%= @index_url %>
+<% end -%>
+<% if @extra_index_url -%>
+extra_index_url = <%= @extra_index_url %>
+<% end -%>
+download_cache = <%= @download_cache %>
+find_links = <%= @wheel_cache %>
+use_wheel = true
+
+[wheel]
+wheel_dir = <%= @wheel_cache %>
