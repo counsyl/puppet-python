@@ -50,7 +50,11 @@ class python::params {
         $lsb_compare = '6'
       }
 
-      if versioncmp($::lsbmajdistrelease, $lsb_compare) > 0 {
+      # Facter 2.2+ changed lsbmajdistrelease fact, e.g., now returns
+      # '12.04' instead of '12' on Ubuntu precise.
+      $major_release = regsubst($::lsbmajdistrelease, '^(\d+).*', '\1')
+
+      if versioncmp($major_release, $lsb_compare) > 0 {
         $version = '2.7'
       } else {
         $version = '2.6'
