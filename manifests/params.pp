@@ -6,9 +6,26 @@ class python::params {
   case $::osfamily {
     openbsd: {
       include sys::openbsd::pkg
+
       $version       = '2.7'
-      $ensure        = $sys::openbsd::pkg::python
-      $source        = $sys::openbsd::pkg::source
+      case $::kernelmajversion {
+        '5.7': {
+          $ensure = '2.7.9p0'
+        }
+        '5.6': {
+          $ensure = '2.7.8'
+        }
+        '5.5': {
+          $ensure = '2.7.6p0'
+        }
+        '5.4': {
+          $ensure = '2.7.5'
+        }
+        default: {
+          fail("Unsupported version of OpenBSD: ${::kernelmajversion}.\n")
+        }
+      }
+
       $package       = 'python'
       $setuptools    = 'py-setuptools'
       $pip           = 'py-pip'
