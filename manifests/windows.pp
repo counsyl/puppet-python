@@ -57,7 +57,7 @@ class python::windows(
     if $base_url {
       $source_uri = "${base_url}${basename}"
     } else {
-      $source_uri = "http://www.python.org/ftp/python/${version}/${basename}"
+      $source_uri = "https://www.python.org/ftp/python/${version}/${basename}"
     }
   }
 
