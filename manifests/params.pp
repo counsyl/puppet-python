@@ -88,7 +88,7 @@ class python::params {
     windows: {
       $ensure        = 'installed'
       $version       = '2.7'
-      $full_version  = '2.7.7'
+      $full_version  = '2.7.9'
       # Other parameters, like $package, $interpreter, and $site_packages
       # are set by `python::windows`.
     }
