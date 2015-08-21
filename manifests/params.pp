@@ -1,7 +1,6 @@
 # == Class: python
 #
 # Platform-dependent parameters for Python.
-#
 class python::params {
   case $::osfamily {
     openbsd: {
@@ -91,6 +90,14 @@ class python::params {
       $full_version  = '2.7.9'
       # Other parameters, like $package, $interpreter, and $site_packages
       # are set by `python::windows`.
+    }
+    Darwin: {
+      $ensure       = 'installed'
+      $version      = '2.7'
+      $full_version = '2.7.9'
+      $pip           = 'python-pip'
+      $interpreter   = '/usr/bin/python'
+      $scripts      = '/usr/local/bin'
     }
     default: {
       fail("Do not know how to install/configure Python on ${::osfamily}.\n")
