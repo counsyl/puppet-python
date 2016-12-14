@@ -74,12 +74,23 @@ class python::params {
       $site_packages = "/usr/local/lib/python${version}/dist-packages"
     }
     redhat: {
+      case $::operatingsystemmajrelease {
+        '6': {
+          $version       = '2.6'
+          $pip           = 'python-pip'
+        }
+        '7': {
+          $version       = '2.7'
+          $pip           = 'python2-pip'
+        }
+        default: {
+          fail("redhat version \"${::operatingsystemmajrelease}\" not supported")
+        }
+      }
       $ensure        = 'installed'
-      $version       = '2.6'
       $package       = 'python'
       $setuptools    = 'python-setuptools'
       $devel         = 'python-devel'
-      $pip           = 'python-pip'
       $virtualenv    = 'python-virtualenv'
       $interpreter   = '/usr/bin/python'
       $site_packages = "/usr/lib/python${version}/site-packages"
