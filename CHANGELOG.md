@@ -1,4 +1,4 @@
-## 0.9.9 (unreleased)
+## 0.9.9
 
 IMPROVEMENTS
 
@@ -7,3 +7,4 @@ IMPROVEMENTS
 FEATURES:
 
 * Add support for OS X via Sam Kerr (GH-3)
+* Add support for Redhat 7 from Amos Shapira
