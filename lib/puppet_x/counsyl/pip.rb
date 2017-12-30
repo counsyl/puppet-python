@@ -44,7 +44,7 @@ module PuppetX
             # is specified to ensure package is actually installed.
             self.class.instances.each do |pip_package|
               if pip_package.name == pypkg
-                args << '--upgrade'
+                args << '--upgrade --upgrade-strategy only-if-needed'
                 break
               end
             end
@@ -57,7 +57,7 @@ module PuppetX
           when String
             args << "#{pypkg}==#{@resource[:ensure]}"
           when :latest
-            args << '--upgrade' << pypkg
+            args << '--upgrade --upgrade-strategy only-if-needed' << pypkg
           else
             args << pypkg
           end
