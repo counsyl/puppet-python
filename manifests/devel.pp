@@ -13,7 +13,7 @@ class python::devel(
   $package = $python::params::devel,
 ) inherits python::params {
   if $package {
-    if $::operatingsystem == Solaris {
+    if $::operatingsystem == 'Solaris' {
       include sys::solaris::sunstudio
       $python_compiler = 'sys::solaris::sunstudio'
     } else {
