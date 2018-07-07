@@ -1,3 +1,13 @@
+## 0.9.10
+
+IMPROVEMENTS
+
+* Do not upgrade package dependencies if not necessary (@michael-christen)
+
+BUG FIXES
+
+* Fix Puppet 4 incompatibility.
+
 ## 0.9.9
 
 IMPROVEMENTS
