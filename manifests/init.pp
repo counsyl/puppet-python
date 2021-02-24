@@ -184,11 +184,17 @@ class python (
       $pip_script = "${scripts}/pip"
     }
 
-    exec { 'pip-install':
-      command => "${easy_install} pip",
-      creates => $pip_script,
-      require => $setuptools_require,
-    }
+    if $::osfamily == 'windows' {
+        exec { 'pip-install':
+          command => "${easy_install} pip==20",
+          creates => $pip_script,
+          require => $setuptools_require,
+        } } else { exec { 'pip-install':
+          command => "${easy_install} pip",
+          creates => $pip_script,
+          require => $setuptools_require,
+        } }
+
   }
 
   if $::osfamily == 'OpenBSD' {
