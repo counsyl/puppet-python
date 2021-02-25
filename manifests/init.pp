@@ -57,6 +57,7 @@ class python (
   $pip_ensure         = 'installed',
   $pip_package        = $python::params::pip,
   $setuptools_ensure  = 'installed',
+  ${easy_install_pip} = 'pip',
   $setuptools_package = $python::params::setuptools,
   $source             = $python::params::source,
 ) inherits python::params {
@@ -184,16 +185,11 @@ class python (
       $pip_script = "${scripts}/pip"
     }
 
-    if $::osfamily == 'windows' {
-        exec { 'pip-install':
-          command => "${easy_install} pip==20",
-          creates => $pip_script,
-          require => $setuptools_require,
-        } } else { exec { 'pip-install':
-          command => "${easy_install} pip",
-          creates => $pip_script,
-          require => $setuptools_require,
-        } }
+    exec { 'pip-install':
+      command => "${easy_install} ${easy_install_pip}",
+      creates => $pip_script,
+      require => $setuptools_require,
+    }
 
   }
 
