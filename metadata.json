@@ -1,6 +1,6 @@
 {
   "name": "counsyl-python",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "author": "Counsyl, Inc.",
   "summary": "Installs the Python language runtime",
   "license": "Apache-2.0",

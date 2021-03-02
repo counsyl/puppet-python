@@ -1,3 +1,9 @@
+## 0.9.11
+
+IMPROVEMENTS
+
+* Configurable pip version for Windows.
+
 ## 0.9.10
 
 IMPROVEMENTS
