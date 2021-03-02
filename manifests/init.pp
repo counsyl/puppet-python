@@ -57,7 +57,7 @@ class python (
   $pip_ensure         = 'installed',
   $pip_package        = $python::params::pip,
   $setuptools_ensure  = 'installed',
-  $easy_install_pip = 'pip',
+  $easy_install_pip   = 'pip',
   $setuptools_package = $python::params::setuptools,
   $source             = $python::params::source,
 ) inherits python::params {
