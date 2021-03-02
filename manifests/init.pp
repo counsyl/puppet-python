@@ -57,6 +57,7 @@ class python (
   $pip_ensure         = 'installed',
   $pip_package        = $python::params::pip,
   $setuptools_ensure  = 'installed',
+  $easy_install_pip   = 'pip',
   $setuptools_package = $python::params::setuptools,
   $source             = $python::params::source,
 ) inherits python::params {
@@ -185,10 +186,11 @@ class python (
     }
 
     exec { 'pip-install':
-      command => "${easy_install} pip",
+      command => "${easy_install} ${easy_install_pip}",
       creates => $pip_script,
       require => $setuptools_require,
     }
+
   }
 
   if $::osfamily == 'OpenBSD' {
